@@ -34,7 +34,3 @@ COPY --from=build /app/storybook-static /usr/share/nginx/html
 
 EXPOSE 80
 
-# No HEALTHCHECK instruction on purpose: Coolify defines its own, and that is
-# the probe which gates a deployment — a second one would only duplicate it.
-# What the image has to provide is a target that answers: `/healthz`, on both
-# address families. See docs/showcase-deployment.md.
