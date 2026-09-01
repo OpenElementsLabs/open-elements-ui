@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/react-vite";
 import type { ReactNode } from "react";
+import { LanguageProvider, TooltipProvider, de, en } from "../src/index.ts";
 import "./preview.css";
 
 const preview: Preview = {
@@ -8,12 +9,18 @@ const preview: Preview = {
     layout: "padded",
   },
   decorators: [
-    // Stand in for the consuming app's root element, which is where the brand
-    // body font and base colours are applied.
+    // Stand in for the consuming app's root. Both providers are genuine
+    // preconditions, not showcase scaffolding: `Tooltip` throws outside a
+    // `TooltipProvider`, and `LanguageSwitch`, `TranslateDialog` and `Sidebar`
+    // all call `useLanguage()`, which throws outside a `LanguageProvider`.
     (Story: () => ReactNode) => (
-      <div className="font-body text-foreground bg-background">
-        <Story />
-      </div>
+      <LanguageProvider translations={{ de, en }} defaultLanguage="en">
+        <TooltipProvider delayDuration={0}>
+          <div className="font-body text-foreground bg-background">
+            <Story />
+          </div>
+        </TooltipProvider>
+      </LanguageProvider>
     ),
   ],
 };

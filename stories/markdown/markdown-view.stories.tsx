@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { MarkdownView } from "../src/index.ts";
-import { Panel, SplitLayout } from "./support/panel.tsx";
-import { useMockSave } from "./support/use-mock-save.ts";
-import { waitForEditor } from "./support/editor.ts";
+import { MarkdownView } from "../../src/index.ts";
+import { Panel, SplitLayout } from "../support/panel.tsx";
+import { useMockSave } from "../support/use-mock-save.ts";
+import { waitForEditor } from "../support/editor.ts";
 
 const CHECKLIST = [
   "Onboarding for the new hire:",

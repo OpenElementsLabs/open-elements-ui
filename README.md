@@ -40,12 +40,22 @@ typography plugin that `MarkdownView` relies on:
 @import "tailwindcss";
 @import "@open-elements/ui/src/styles/brand.css";
 @plugin "@tailwindcss/typography";
+@import "tw-animate-css";
 @source "../node_modules/@open-elements/ui/src";
 ```
 
-Without the `@source` line, components render unstyled — task list checkboxes pick up a `prose`
-bullet, for instance. The [component showcase](#component-showcase) uses the same configuration and
-asserts the result, so a break in this contract surfaces there.
+Each line is load-bearing:
+
+- **`@source`** — this package ships raw `.tsx`, so its utility classes reach your app as source
+  text. Without the scan they never become CSS, and components render unstyled: task list
+  checkboxes pick up a `prose` bullet, for instance.
+- **`@tailwindcss/typography`** — `MarkdownView` and `MarkdownEditor` hardcode `prose prose-sm`.
+- **`tw-animate-css`** — every overlay (`Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Select`,
+  `Combobox`, `Tooltip`) writes its enter and exit states with `animate-in`, `fade-in-0`,
+  `zoom-in-95` and `slide-in-from-*`, none of which are Tailwind core utilities.
+
+The [component showcase](#component-showcase) uses exactly this configuration and asserts the
+result, so a break in this contract surfaces there.
 
 ## Translations
 
@@ -73,8 +83,13 @@ indirectly: the toolbar allowlist, the task-list creation gate under actual keys
 checkbox lifecycle after actual clicks, and that the Tailwind utilities the components rely on
 resolve to real styles. They are additive; the vitest suites are unchanged.
 
-`MarkdownEditor` and `MarkdownView` establish the pattern. The remaining components follow
-incrementally.
+Every exported component has stories, grouped in the sidebar as Primitives, Forms, Overlays, Data,
+Actions, Navigation and Markdown.
+
+Rendering the library for real turned up defects the unit tests cannot see — an undefined
+`--radius`, a non-existent `text-oe-gray`, unlabelled icon buttons and a set of brand tokens that
+miss WCAG AA. They are catalogued in [docs/showcase-findings.md](docs/showcase-findings.md); none
+have been changed in `src/`.
 
 Deployment of the showcase is documented in
 [docs/showcase-deployment.md](docs/showcase-deployment.md).

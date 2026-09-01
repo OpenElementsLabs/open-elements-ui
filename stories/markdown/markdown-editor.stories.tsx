@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import { MarkdownEditor } from "../src/index.ts";
-import type { MarkdownEditorProps, MarkdownToolbarAction } from "../src/index.ts";
-import { Panel, SplitLayout } from "./support/panel.tsx";
-import { MOD_SHIFT_9, TASK_ITEM_INPUT_RULE } from "./support/keyboard.ts";
-import { waitForEditor } from "./support/editor.ts";
+import { MarkdownEditor } from "../../src/index.ts";
+import type { MarkdownEditorProps, MarkdownToolbarAction } from "../../src/index.ts";
+import { Panel, SplitLayout } from "../support/panel.tsx";
+import { MOD_SHIFT_9, TASK_ITEM_INPUT_RULE } from "../support/keyboard.ts";
+import { waitForEditor } from "../support/editor.ts";
 
 /** Every action the toolbar can offer, in the order the type declares them. */
 const TOOLBAR_ACTIONS: readonly MarkdownToolbarAction[] = [
