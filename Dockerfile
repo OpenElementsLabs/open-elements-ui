@@ -34,5 +34,7 @@ COPY --from=build /app/storybook-static /usr/share/nginx/html
 
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-    CMD wget -q --spider http://localhost/healthz || exit 1
+# No HEALTHCHECK instruction on purpose: Coolify defines its own, and that is
+# the probe which gates a deployment — a second one would only duplicate it.
+# What the image has to provide is a target that answers: `/healthz`, on both
+# address families. See docs/showcase-deployment.md.
