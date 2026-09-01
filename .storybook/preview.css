@@ -4,6 +4,16 @@
 @plugin "@tailwindcss/typography";
 
 /*
+ * The overlays (Dialog, AlertDialog, Sheet, Popover, Select, Combobox,
+ * Tooltip) are shadcn-derived and their enter/exit states are written with
+ * `animate-in`, `fade-in-0`, `zoom-in-95` and `slide-in-from-*`. None of those
+ * are Tailwind core utilities — they come from this plugin. Without it every
+ * overlay still renders, but appears and disappears with no transition, so the
+ * showcase would misrepresent them.
+ */
+@import "tw-animate-css";
+
+/*
  * The same content configuration a consuming app needs. Spec 001 recorded this
  * as an unverified precondition: the library ships utility classes as source
  * text, so they only become real CSS once something scans `src/`. If a story
