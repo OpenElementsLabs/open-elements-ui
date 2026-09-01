@@ -4,3 +4,6 @@ sbom/
 *.tsbuildinfo
 .env
 .claude/settings.local.json
+
+# Storybook static build
+storybook-static/
