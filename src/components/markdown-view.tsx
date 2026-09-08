@@ -23,9 +23,7 @@ type ProseMirrorNode = NodeWithPos["node"];
  * among the task-item `<li>`s maps directly to the nth `taskItem` node.
  */
 function positionOfToggled(editor: Editor, checked: boolean): number {
-  const items = Array.from(
-    editor.view.dom.querySelectorAll<HTMLElement>("li[data-checked]"),
-  );
+  const items = Array.from(editor.view.dom.querySelectorAll<HTMLElement>("li[data-checked]"));
   const clickedIndex = items.findIndex((li) => {
     const input = li.querySelector<HTMLInputElement>("input[type=checkbox]");
     return input != null && input.checked === checked && li.dataset.checked !== String(checked);
@@ -147,8 +145,7 @@ export function MarkdownView({ content, onChange }: MarkdownViewProps) {
     <div
       aria-busy={busy}
       className={cn(
-        busy &&
-          "[&_input[type=checkbox]]:cursor-not-allowed [&_input[type=checkbox]]:opacity-50",
+        busy && "[&_input[type=checkbox]]:cursor-not-allowed [&_input[type=checkbox]]:opacity-50",
       )}
     >
       <EditorContent editor={editor} />

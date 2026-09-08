@@ -226,13 +226,19 @@ describe("createMarkdownExtensions — task list creation gate follows allowedAc
   });
 
   it("opens the keyboard shortcut when taskList is allowed", () => {
-    const editor = mountEditor("<p></p>", createMarkdownExtensions({ allowedActions: ["taskList"] }));
+    const editor = mountEditor(
+      "<p></p>",
+      createMarkdownExtensions({ allowedActions: ["taskList"] }),
+    );
     pressTaskListShortcut(editor);
     expect(hasTaskList(editor)).toBe(true);
   });
 
   it("opens the '[ ] ' input rule when taskList is allowed", () => {
-    const editor = mountEditor("<p></p>", createMarkdownExtensions({ allowedActions: ["taskList"] }));
+    const editor = mountEditor(
+      "<p></p>",
+      createMarkdownExtensions({ allowedActions: ["taskList"] }),
+    );
     typeSpaceAfterBracket(editor);
     expect(hasTaskList(editor)).toBe(true);
   });

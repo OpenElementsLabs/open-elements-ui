@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type {
-  MarkdownToolbarAction,
-  MarkdownEditorProps,
-  MarkdownViewProps,
-} from "../index.ts";
+import type { MarkdownToolbarAction, MarkdownEditorProps, MarkdownViewProps } from "../index.ts";
 
 /**
  * These assertions are enforced by `tsc` (the runtime bodies are trivial). A
