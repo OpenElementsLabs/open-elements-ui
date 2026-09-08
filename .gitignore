@@ -7,3 +7,4 @@ sbom/
 
 # Storybook static build
 storybook-static/
+**/vite-env.d.ts

@@ -16,8 +16,7 @@
     "incremental": true,
     "paths": {
       "@ui/*": ["./src/*"]
-    },
-    "baseUrl": "."
+    }
   },
   "include": [
     "src/**/*.ts",
