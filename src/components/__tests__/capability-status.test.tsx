@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { CapabilityStatus } from "../capability-status.tsx";
 import { TooltipProvider } from "../tooltip.tsx";
 
@@ -59,8 +59,9 @@ describe("CapabilityStatus", () => {
       />,
     );
 
-    const trigger = screen.getByRole("note");
-    fireEvent.focus(trigger);
+    // Radix only opens the tooltip for focus that actually moves the active
+    // element, so a synthetic focus event is not enough here.
+    screen.getByRole("note").focus();
 
     const tooltip = await screen.findByRole("tooltip");
     expect(tooltip).toHaveTextContent("HEIC uploads will be rejected with 415 — check Dockerfile");

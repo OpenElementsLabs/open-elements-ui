@@ -1,6 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    // `prebuild` wipes dist/ on every build, so a full emit is all this config
+    // ever does. Inheriting incremental:true from tsconfig.json only left a
+    // stale tsconfig.build.tsbuildinfo behind, which made the *second* build
+    // emit nothing at all (dist/ gone, tsc believing it was up to date).
+    "incremental": false,
+    "rootDir": "./src",
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,

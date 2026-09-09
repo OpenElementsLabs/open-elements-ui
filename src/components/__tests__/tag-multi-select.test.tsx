@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { TagMultiSelect } from "../tag-multi-select.tsx";
 import type { TagOption, TagMultiSelectTranslations } from "../../types/index.ts";
 
@@ -13,6 +13,21 @@ const mockTags: TagOption[] = [
   { value: "2", label: "Partner", color: "#00FF00" },
   { value: "3", label: "Lead", color: "#0000FF" },
 ];
+
+afterEach(() => {
+  cleanup();
+});
+
+// The listbox is portalled and only mounted while the combobox is open, so the
+// empty message is not in the DOM until the popup is opened. ArrowDown is the
+// combobox open interaction that works without layout, which jsdom lacks.
+async function openPopup() {
+  const input = screen.getByPlaceholderText("Choose tags...");
+  fireEvent.keyDown(input, { key: "ArrowDown" });
+  await waitFor(() => {
+    expect(input).toHaveAttribute("aria-expanded", "true");
+  });
+}
 
 describe("TagMultiSelect", () => {
   it("calls loadTags on mount", async () => {
@@ -44,9 +59,7 @@ describe("TagMultiSelect", () => {
       />,
     );
 
-    const inputs = screen.getAllByPlaceholderText("Choose tags...");
-    expect(inputs.length).toBeGreaterThanOrEqual(1);
-    expect(inputs[0]).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Choose tags...")).toBeInTheDocument();
   });
 
   it("shows empty message when no tags loaded", async () => {
@@ -62,9 +75,11 @@ describe("TagMultiSelect", () => {
     );
 
     await waitFor(() => {
-      const msgs = screen.getAllByText("No tags available");
-      expect(msgs.length).toBeGreaterThanOrEqual(1);
+      expect(loadTags).toHaveBeenCalled();
     });
+    await openPopup();
+
+    expect(screen.getByText("No tags available")).toBeInTheDocument();
   });
 
   it("handles loadTags failure without crashing", async () => {
@@ -82,9 +97,9 @@ describe("TagMultiSelect", () => {
     await waitFor(() => {
       expect(loadTags).toHaveBeenCalled();
     });
+    await openPopup();
 
-    const msgs = screen.getAllByText("No tags available");
-    expect(msgs.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("No tags available")).toBeInTheDocument();
   });
 
   it("renders selected tags as chips with correct colors", async () => {
@@ -120,10 +135,8 @@ describe("TagMultiSelect", () => {
     );
 
     await waitFor(() => {
-      const chips = screen.getAllByText("Bad Color");
-      const chipEl = chips.find((el) => el.closest("[data-slot='combobox-chip']"));
-      expect(chipEl).toBeTruthy();
-      expect(chipEl!.closest("[data-slot='combobox-chip']")).toHaveStyle({
+      const chipEl = screen.getByText("Bad Color");
+      expect(chipEl.closest("[data-slot='combobox-chip']")).toHaveStyle({
         backgroundColor: "#6B7280",
       });
     });
