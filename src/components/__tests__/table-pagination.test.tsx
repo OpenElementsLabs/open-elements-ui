@@ -112,4 +112,58 @@ describe("TablePagination", () => {
     render(<TablePagination {...defaultProps} totalElements={5} totalPages={1} />);
     expect(screen.getByLabelText("per page")).toBeInTheDocument();
   });
+
+  describe("changing the page size", () => {
+    // Radix Select relies on pointer capture and scrollIntoView, which jsdom does not implement.
+    beforeEach(() => {
+      Element.prototype.hasPointerCapture ??= () => false;
+      Element.prototype.releasePointerCapture ??= () => undefined;
+      Element.prototype.scrollIntoView ??= () => undefined;
+    });
+
+    function selectPageSize(size: string) {
+      fireEvent.keyDown(screen.getByLabelText("per page"), { key: "Enter" });
+      fireEvent.click(screen.getByRole("option", { name: size }));
+    }
+
+    it("stores the new size and resets to the first page", () => {
+      const onPageChange = vi.fn();
+      const onPageSizeChange = vi.fn();
+      render(
+        <TablePagination
+          {...defaultProps}
+          page={1}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          totalElements={35}
+          totalPages={2}
+        />,
+      );
+      selectPageSize("50");
+      expect(onPageSizeChange).toHaveBeenCalledWith(50);
+      expect(localStorageMock.setItem).toHaveBeenCalledWith("pageSize.test", "50");
+      expect(onPageChange).toHaveBeenCalledWith(0);
+    });
+
+    it("still changes the size when storage throws", () => {
+      localStorageMock.setItem.mockImplementationOnce(() => {
+        throw new DOMException("The operation is insecure.", "SecurityError");
+      });
+      const onPageChange = vi.fn();
+      const onPageSizeChange = vi.fn();
+      render(
+        <TablePagination
+          {...defaultProps}
+          page={1}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          totalElements={35}
+          totalPages={2}
+        />,
+      );
+      selectPageSize("50");
+      expect(onPageSizeChange).toHaveBeenCalledWith(50);
+      expect(onPageChange).toHaveBeenCalledWith(0);
+    });
+  });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+import { safeStorage } from "../lib/safe-storage.ts";
 
 export type Language = "de" | "en";
 
@@ -16,13 +17,9 @@ interface LanguageContextValue<T = Record<string, unknown>> {
 const LanguageContext = createContext<LanguageContextValue<any> | null>(null);
 
 function detectLanguage(): Language {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "de" || stored === "en") {
-      return stored;
-    }
-  } catch {
-    // localStorage not available
+  const stored = safeStorage.get(STORAGE_KEY);
+  if (stored === "de" || stored === "en") {
+    return stored;
   }
 
   if (typeof navigator !== "undefined") {
@@ -63,20 +60,12 @@ export function LanguageProvider<T>({
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
     document.documentElement.lang = lang;
-    try {
-      localStorage.setItem(STORAGE_KEY, lang);
-    } catch {
-      // localStorage not available
-    }
+    safeStorage.set(STORAGE_KEY, lang);
   }, []);
 
   useEffect(() => {
     if (mounted) {
-      try {
-        localStorage.setItem(STORAGE_KEY, language);
-      } catch {
-        // localStorage not available
-      }
+      safeStorage.set(STORAGE_KEY, language);
     }
   }, [language, mounted]);
 
