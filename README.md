@@ -123,81 +123,43 @@ consumer. Read a peer's `cdx:npm:peer` range, not its pinned version, as the req
 
 ## Releasing a New Version
 
-Every release must be published to npm **and** have a corresponding Git tag and GitHub Release.
+Pushing a `v<version>` tag triggers [`.github/workflows/release.yml`](.github/workflows/release.yml).
+It runs the CI checks, generates the SBOMs, _stages_ the npm publish and creates a **draft** GitHub
+Release. Nothing goes live until a maintainer approves both by hand (2FA).
 
-A release is driven entirely by pushing a `v<version>` tag:
-that triggers [`.github/workflows/release.yml`](.github/workflows/release.yml), which verifies,
-builds, generates the SBOMs, _stages_ the npm publish and creates a **draft** GitHub Release.
-Neither the npm version nor the GitHub Release goes live until a maintainer approves it by hand —
-both stay behind the same human 2FA gate.
+`package.json` always holds the last released version.
 
-### Steps
-
-1. **Add an upgrade guide** for user-visible changes as `docs/upgrade-to-<major.minor>.md`,
-   following the existing guides, and commit it. Do this before the bump — `pnpm version` needs a
-   clean working tree, and the tag must point at a commit that already contains everything.
-2. **Verify locally** before tagging — the workflow runs the same checks and a failure means
-   re-cutting the tag:
+1. **Check the upgrade guide.** Every user-visible change since the last release must be covered by
+   `docs/upgrade-to-<major.minor>.md` for the version you are about to release — review
+   `git log v<last-version>..HEAD` against it. Commit the guide before bumping.
+2. **Bump the version** on an up-to-date, clean `main`. This commits the new version and creates the
+   matching tag in one step; only plain `A.B.C` versions are accepted:
 
    ```bash
-   pnpm install --frozen-lockfile
-   pnpm run typecheck && pnpm run lint && pnpm run format:check
-   pnpm run test && pnpm run build
-   pnpm run sbom && pnpm run sbom:verify
+   pnpm version minor --message "chore: release %s"
    ```
 
-3. **Bump the version.** On an up-to-date `main`, let `pnpm version` do it. It rewrites
-   `package.json`, commits the change and creates the annotated `v<version>` tag in one step, so the
-   tag and `package.json` version can never disagree — which is exactly what the workflow verifies:
-
-   ```bash
-   pnpm version patch   # 0.9.0 -> 0.9.1
-   pnpm version minor   # 0.9.0 -> 0.10.0
-   pnpm version major   # 0.9.0 -> 1.0.0
-   ```
-
-   Pass an exact version (`pnpm version 0.10.0`) when you do not want a relative bump. Only plain
-   `A.B.C` releases are supported — the workflow rejects pre-release tags, so avoid
-   `premajor`/`preminor`/`prepatch`/`prerelease`. The default commit message is the bare version
-   number; add `--message "chore: release %s"` to match the repository's commit style. `v` is
-   already pnpm's default tag prefix and matches the workflow's `v*` trigger.
-
-4. **Push the commit and the tag** — pushing the tag is what starts the release:
+3. **Push** — the tag starts the release:
 
    ```bash
    git push --follow-tags origin main
    ```
 
-5. **Watch the workflow.** `gh run watch` (or the Actions tab). It ends with the version in the npm
-   staging queue and a draft GitHub Release carrying both SBOMs as assets.
-6. **Approve the npm publish** — this is the step that makes the version installable. Either approve
-   it on npmjs.com, or:
-
-   ```bash
-   pnpm stage list                # find the stage id for the release
-   pnpm stage approve <stage-id>  # requires 2FA
-   ```
-
-7. **Publish the draft GitHub Release** on GitHub, or with
-   `gh release edit v0.10.0 --draft=false`. Review the auto-generated notes first.
-8. **Open the next development version** — bump `package.json` to the next planned version with
-   `pnpm version <next-version> --no-git-tag-version`, then commit and push to `main`.
-   `--no-git-tag-version` is required here: without it pnpm would tag the development bump and
-   trigger another release.
+4. **Approve the npm publish** once the workflow is green, on npmjs.com or with
+   `pnpm stage list` and `pnpm stage approve <stage-id>`.
+5. **Publish the draft GitHub Release** after reviewing its generated notes.
 
 ### If something goes wrong
 
-- **The workflow fails before `pnpm stage publish`** (checks, build, SBOM): nothing was published.
-  Delete the tag, fix the problem, then re-cut the tag on the fixed commit. Do not run
-  `pnpm version` again — `package.json` already holds the release version, so tag by hand:
+- **Workflow failed, nothing staged:** delete the tag, commit the fix, and tag again by hand —
+  `package.json` already holds the release version, so do not run `pnpm version` again:
 
   ```bash
-  git tag -d v0.10.0 && git push origin :refs/tags/v0.10.0
+  git tag -d v<version> && git push origin :refs/tags/v<version>
   # commit the fix, then:
-  git tag -a v0.10.0 -m "0.10.0" && git push origin v0.10.0
+  git tag -a v<version> -m "<version>" && git push origin v<version>
   ```
 
-- **The workflow failed after staging**: the version sits unapproved in the npm staging queue. Do
-  not approve it — discard the stage on npmjs.com and re-cut the tag as above.
-- **Wrong content already approved on npm**: the version is immutable. Do not attempt to reuse it —
-  release a patch version instead.
+- **Workflow failed after staging:** discard the stage on npmjs.com, then re-cut the tag as above.
+- **Wrong content already approved on npm:** published versions are immutable — release a patch
+  version instead.
