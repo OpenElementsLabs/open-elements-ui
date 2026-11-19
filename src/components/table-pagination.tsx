@@ -2,6 +2,7 @@
 
 import { Button } from "./button.tsx";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select.tsx";
+import { safeStorage } from "../lib/safe-storage.ts";
 
 export type PaginationTranslations = {
   readonly perPage: string;
@@ -45,7 +46,7 @@ export function TablePagination({
           onValueChange={(v) => {
             const n = Number(v);
             onPageSizeChange(n);
-            localStorage.setItem(storageKey, v);
+            safeStorage.set(storageKey, v);
             onPageChange(0);
           }}
         >

@@ -195,6 +195,7 @@ export type {
 
 // Utilities
 export { cn } from "./lib/utils.ts";
+export { safeStorage } from "./lib/safe-storage.ts";
 
 // i18n
 export { LanguageProvider, useTranslations, useLanguage } from "./i18n/language-context.tsx";
